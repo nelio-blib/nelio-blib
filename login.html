@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        /* CSS para a tela de login */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .login-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 300px;
+        }
+        .login-container h2 {
+            margin-bottom: 20px;
+        }
+        .login-container input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .login-container button {
+            width: calc(100% - 20px);
+            padding: 10px;
+            background-color: #ff0000;
+            border: none;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .login-container button:hover {
+            background-color: #cc0000;
+        }
+        .social-login {
+            display: flex;
+            flex-direction: column;
+        }
+        .social-login button {
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        .social-login .google {
+            background-color: #4285f4;
+            color: white;
+        }
+        .social-login .facebook {
+            background-color: #3b5998;
+            color: white;
+        }
+        .forgot-password {
+            color: red;
+            text-align: right;
+            display: block;
+            margin-top: 10px;
+        }
+        .stay-connected {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .stay-connected input {
+            margin-right: 5px;
+        }
+        #error-dialog {
+            display: none;
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Acesse sua conta</h2>
+        <div class="social-login">
+            <button class="google" id="google-login">Continuar com Google</button>
+            <button class="facebook" id="facebook-login">Continuar com Facebook</button>
+        </div>
+        <input type="email" id="email" placeholder="E-MAIL">
+        <input type="password" id="password" placeholder="SENHA">
+        <a href="#" class="forgot-password">Esqueci minha senha</a>
+        <button id="login">ENTRAR</button>
+        <div class="stay-connected">
+            <input type="checkbox" id="stay-connected">
+            <label for="stay-connected">Manter conectado</label>
+        </div>
+        <div id="error-dialog">Dados incorretos. Tente novamente.</div>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+    <script>
+        // Configuração do Firebase
+        var firebaseConfig = {
+            apiKey: "AIzaSyAhcjUiWlThBiYQpTK_G6f_OXaygJcmex0",
+            authDomain: "ctia-f6eea.firebaseapp.com",
+            projectId: "ctia-f6eea ",
+            storageBucket: "https://ctia-f6eea.appspot.com",
+            messagingSenderId: "403370334139",
+            appId: "1:101127036846:android:dd963c962e4af5c1a5323f"
+        };
+        // Inicializa o Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Referências aos elementos do DOM
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const loginButton = document.getElementById('login');
+        const googleLoginButton = document.getElementById('google-login');
+        const facebookLoginButton = document.getElementById('facebook-login');
+        const errorDialog = document.getElementById('error-dialog');
+
+        // Redireciona para a página home
+        function redirectToHome() {
+            window.location.href = 'aviatorsignal.html';
+        }
+
+        // Exibe mensagem de erro
+        function showError(message) {
+            errorDialog.textContent = message;
+            errorDialog.style.display = 'block';
+        }
+
+        // Login com e-mail e senha
+        loginButton.addEventListener('click', (e) => {
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    var user = userCredential.user;
+                    redirectToHome();
+                })
+                .catch((error) => {
+                    var errorCode = error.code;
+                    var errorMessage = error.message;
+                    showError('Dados incorretos. Tente novamente.');
+                    console.error(errorCode, errorMessage);
+                });
+        });
+
+        // Login com Google
+        googleLoginButton.addEventListener('click', (e) => {
+            var provider = new firebase.auth.GoogleAuthProvider();
+            firebase.auth().signInWithPopup(provider)
+                .then((result) => {
+                    var user = result.user;
+                    redirectToHome();
+                })
+                .catch((error) => {
+                    var errorCode = error.code;
+                    var errorMessage = error.message;
+                    showError('Erro ao fazer login com Google. Tente novamente.');
+                    console.error(errorCode, errorMessage);
+                });
+        });
+
+        // Login com Facebook
+        facebookLoginButton.addEventListener('click', (e) => {
+            var provider = new firebase.auth.FacebookAuthProvider();
+            firebase.auth().signInWithPopup(provider)
+                .then((result) => {
+                    var user = result.user;
+                    redirectToHome();
+                })
+                .catch((error) => {
+                    var errorCode = error.code;
+                    var errorMessage = error.message;
+                    showError('Erro ao fazer login com Facebook. Tente novamente.');
+                    console.error(errorCode, errorMessage);
+                });
+        });
+    </script>
+</body>
+</html>
